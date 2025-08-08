@@ -21,9 +21,6 @@ router.post('/', async (req, res) => {
   const { company, title, location, date, source, url, status, userId } = req.body;
 
   // Validate required fields
-  if (!company || !title || !location || !date || !source || !url || !status || !userId) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
 
   try {
     const newJob = new Job({ company, title, location, date, source, url, status, userId });

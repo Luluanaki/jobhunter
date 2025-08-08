@@ -1,6 +1,7 @@
 import './index.css';
-import React from 'react';
 import { useRef, useState, useEffect } from 'react';
+import { HeaderRow } from './HeaderRow';
+import { gridTemplateStyle, inputStyle, inputFocusStyle, editBoxStyle, buttonStyle, outerBorderStyle, columnConfig, rowStyle,     } from './styles';
 
 function App() 
 {
@@ -9,30 +10,15 @@ function App()
   const [loginInput, setLoginInput] = useState('');
 
 
-  const gridTemplateStyle = {
-    display: 'grid',
-    gridTemplateColumns: '0.3fr 1.5fr 1.5fr 1fr 1fr 1fr 0.36fr 0.63fr 0.4fr',
-    columnGap: '3px',
-    rowGap: '3px',
-  };
 
-  const columnConfig = [
-    { maxWidth: '34px',  maxChars: 3 },       // #
-    { maxWidth: '265px', maxChars: 28 },      // Company
-    { maxWidth: '265px', maxChars: 28 },      // Job Title
-    { maxWidth: '169px', maxChars: 18 },      // Location
-    { maxWidth: '169px', maxChars: 15 },      // Date
-    { maxWidth: '169px', maxChars: 15 },      // Source
-    { maxWidth: '46px' },                     // URL (just shows "Click")
-    { maxWidth: '97px' },                     // Status dropdown
-    { maxWidth: '54px' },                     // Edit button
-  ];
+
+
 
 
 
   const gridMinWidth = '1500px';
 
-  const headerCells = ['#', 'Company', 'Job Title', 'Location', 'Date', 'Source', 'URL', 'Status', '' ];
+
 
   const [company, setCompany] = useState('');
   const [title, setTitle] = useState('');
@@ -72,40 +58,14 @@ function App()
   const [editingIndex, setEditingIndex] = useState(null);
   const [lastEditedId, setLastEditedId] = useState(null);
 
-  const inputStyle = {
-      backgroundColor: '#1e1e1e',                           //input
-      color: '#ffffff',                                     //input font
-      border: '1px solid #666',
-      padding: '6px 8px',
-      fontSize: '14px',
-      outline: 'none',
-    };
-
-  const inputFocusStyle = {
-    border: '1px solid rgb(199, 0, 0)',                     //input hover
-  };
-
-  const editBoxStyle = {                                      //Colors for edit area
-    padding: '20px',
-    border: '3px solid rgba(124, 0, 0, 1)',                 
-    backgroundColor: 'rgba(124, 0, 0, 0.08)',
-    borderRadius: '4px',
-    boxShadow: '0 0 8px rgba(194, 0, 0, 0.75)',
-  };
 
   const mergedInputStyle = (isFocused) => ({
     ...inputStyle,
     ...(isFocused ? inputFocusStyle : {}),
   });
 
-  const buttonStyle = {
-    backgroundColor: 'rgb(141, 0, 0)',                      //button
-    color: '#fff',                                            //button font
-    border: '3px solid #9b3232ff',
-    padding: '6px 12px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-  };
+
+    
 
   const [hoveredRow, setHoveredRow] = useState(null);
   const buttonHoverStyle = {
@@ -121,36 +81,7 @@ function App()
   const editedRowRef = useRef(null);
   const [flashingId, setFlashingId] = useState(null);
 
-  const rowStyle = (index,  isHeader = false, i = null) => ({
-    padding: '4px 12px',
-    lineHeight: '40px',
-    height: '40px',    
-    backgroundColor: isHeader 
-    ? '#141414ff'                                          //header row
-    : hoveredRow === index
-    ? 'rgb(73, 14, 14)'                                    //hover row
-    : index % 2 === 0 
-    ? '#202020ff'                                          //even row
-    : '#1a1a1aff',                                         //odd row
-    color: isHeader ? '#ffffffff'                          //header font
-    : '#e6e6e6ff',                                         //row font
-    fontWeight: (i === 0 || isHeader) ? 'bold' : 'normal',
-    fontSize: isHeader ? '22px' : i === 0 ? '18px' : '16px',
-    textAlign: ( [0, 6, 7, 8].includes(i) || isHeader) ? 'center' : 'left',
-    borderBottom: isHeader ? `0px solid ${innerBorderColor}` : null
-  });
-
-  const outerBorderColor = ' rgba(97, 97, 97, 1)';        //outside border
-  const innerBorderColor = ' #131313ff';                  //inside border
-
-  const outerBorderStyle = {
-    borderBottom: `5px solid ${outerBorderColor}`,
-    borderLeft: `5px solid ${outerBorderColor}`,
-    borderRight: `5px solid ${outerBorderColor}`,
-    borderRadius: '4x',
-    boxShadow: '0 0 100px rgba(97, 97, 97, 0.9)',
-    backgroundColor: innerBorderColor
-  };
+ 
 
   const [sortConfig, setSortConfig] = useState({ key: '', direction: '' });
   const sortedJobs = [...jobs];
@@ -316,7 +247,6 @@ function App()
     } else {
       // ADD MODE
       try {
-        console.log("Job being submitted:", newJob);
 
         const response = await fetch('http://localhost:5000/api/jobs', {
           method: 'POST',
@@ -326,6 +256,8 @@ function App()
         
   
         const savedJob = await response.json();
+
+
         setJobs(prevJobs => [...prevJobs, savedJob]);
         setLastEditedId(savedJob._id);
   
@@ -349,7 +281,6 @@ function App()
     setSource('');
     setUrl('');
   }
-  
   
   
 
@@ -543,47 +474,10 @@ function App()
         </div>
 
         <div style={{ marginTop: '40px'}}>
-          <div style={{ overflowX: 'visible' }}>
+          <div style={{ overflowX: '' }}>
             <div style={{ width: '100%', minWidth: gridMinWidth, ...outerBorderStyle }}>
             
-              {/* Header Row */}
-                <div style={{ ...gridTemplateStyle, position: 'sticky', top: 0, zIndex: 10, borderTop: `5px solid ${outerBorderColor}` }}>
-                {headerCells.map((text, i) => {
-                  let key = null;
-                  switch (i) {
-                    case 1: key = 'company'; break;
-                    case 2: key = 'title'; break;
-                    case 3: key = 'location'; break;
-                    case 4: key = 'date'; break;
-                    case 5: key = 'source'; break;
-                    case 7: key = 'status'; break;
-                    default: key = null;
-                  }
-
-                  const isSorted = sortConfig.key === key;
-                  const arrow = isSorted ? (sortConfig.direction === 'asc' ? ' ↓' : ' ↑') : '';
-
-                  return (
-                    <div
-                      key={i}
-                      style={{
-                        ...rowStyle(0, true, i),
-                        cursor: key ? 'pointer' : 'default',
-                        userSelect: 'none'
-                      }}
-                      onClick={() => {
-                        if (!key) return;
-                        setSortConfig(prev => ({
-                          key,
-                          direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
-                        }));
-                      }}
-                    >
-                      {text}{arrow}
-                    </div>
-                  );
-                })}
-                </div>
+            <HeaderRow sortConfig={sortConfig} setSortConfig={setSortConfig} hoveredRow={hoveredRow}/> 
               
               {/* Job Rows */}
               <div style={{ ...gridTemplateStyle }} >
@@ -662,7 +556,7 @@ function App()
                             <div
                               key={i}
                               style={{
-                                ...rowStyle(index, false, i),
+                                ...rowStyle(index, false, i, hoveredRow),
                                 ...(job._id === flashingId
                                   ? {
                                       borderBottom: '3px solid rgba(124, 0, 0, 1)',
