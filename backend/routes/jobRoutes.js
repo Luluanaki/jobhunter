@@ -20,8 +20,6 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   const { company, title, location, date, source, url, status, userId } = req.body;
 
-  // Validate required fields
-
   try {
     const newJob = new Job({ company, title, location, date, source, url, status, userId });
     const savedJob = await newJob.save();

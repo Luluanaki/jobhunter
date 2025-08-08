@@ -1,25 +1,14 @@
 import './index.css';
 import { useRef, useState, useEffect } from 'react';
-import { HeaderRow } from './HeaderRow';
-import { gridTemplateStyle, inputStyle, inputFocusStyle, editBoxStyle, buttonStyle, outerBorderStyle, columnConfig, rowStyle,     } from './styles';
+import { HeaderRow } from './components/HeaderRow';
+import  InputForm  from './components/InputForm';
+import { gridTemplateStyle, editBoxStyle, buttonStyle, outerBorderStyle, columnConfig, rowStyle, gridMinWidth    } from './styles/styles';
 
 function App() 
 {
   const [username, setUsername] = useState('');
   const [userId, setUserId] = useState(localStorage.getItem('userId') || '');
   const [loginInput, setLoginInput] = useState('');
-
-
-
-
-
-
-
-
-  const gridMinWidth = '1500px';
-
-
-
   const [company, setCompany] = useState('');
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
@@ -28,6 +17,36 @@ function App()
   const [url, setUrl] = useState('');
   const [jobs, setJobs] = useState([]);
 
+  const flashTimeoutRef = useRef(null);
+  const [focusedIndex, setFocusedIndex] = useState(null);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [lastEditedId, setLastEditedId] = useState(null);
+
+  const [hoveredRow, setHoveredRow] = useState(null);
+  const buttonHoverStyle = {
+    backgroundColor: '#c21a1aff',                           //button hover
+  };
+
+  const [hoveredDelete, setHoveredDelete] = useState(false);
+
+  const [hovered, setHovered] = useState(false);
+  const [hoveredEditIndex, setHoveredEditIndex] = useState(null);
+
+
+  const editedRowRef = useRef(null);
+  const [flashingId, setFlashingId] = useState(null);
+
+ 
+
+  const [sortConfig, setSortConfig] = useState({ key: '', direction: '' });
+  const sortedJobs = [...jobs];
+
+  
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [jobToDelete, setJobToDelete] = useState(null);
+
+
+  const formRef = useRef(null);
 
   useEffect(() => {
     if (!userId) return;
@@ -53,38 +72,7 @@ function App()
     }
   }, []);
 
-  const flashTimeoutRef = useRef(null);
-  const [focusedIndex, setFocusedIndex] = useState(null);
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [lastEditedId, setLastEditedId] = useState(null);
 
-
-  const mergedInputStyle = (isFocused) => ({
-    ...inputStyle,
-    ...(isFocused ? inputFocusStyle : {}),
-  });
-
-
-    
-
-  const [hoveredRow, setHoveredRow] = useState(null);
-  const buttonHoverStyle = {
-    backgroundColor: '#c21a1aff',                           //button hover
-  };
-
-  const [hoveredDelete, setHoveredDelete] = useState(false);
-
-  const [hovered, setHovered] = useState(false);
-  const [hoveredEditIndex, setHoveredEditIndex] = useState(null);
-
-
-  const editedRowRef = useRef(null);
-  const [flashingId, setFlashingId] = useState(null);
-
- 
-
-  const [sortConfig, setSortConfig] = useState({ key: '', direction: '' });
-  const sortedJobs = [...jobs];
 
   if (sortConfig.key && sortConfig.direction) {
     sortedJobs.sort((a, b) => {
@@ -139,13 +127,6 @@ function App()
     })
   }
   
-
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [jobToDelete, setJobToDelete] = useState(null);
-
-
-  const formRef = useRef(null);
-
   useEffect(() => {
     if (lastEditedId && editedRowRef.current) {
       editedRowRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -377,96 +358,33 @@ function App()
                         setUsername('');
                       }} style={{ marginLeft: '10px' }}>Logout</button>
                     </div>
-                  )}
-                  
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px', }} >
-                      <input
-                        maxLength={45}
-                        value={company}
-                        onChange={(e) => setCompany(e.target.value)}
-                        placeholder="Company"
-                        type="text"
-                        style={mergedInputStyle(focusedIndex === 0)}
-                        onFocus={() => setFocusedIndex(0)}
-                        onBlur={() => setFocusedIndex(null)}
-                      />
-                      <input
-                        maxLength={45}
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Job Title"
-                        type="text"
-                        style={mergedInputStyle(focusedIndex === 1)}
-                        onFocus={() => setFocusedIndex(1)}
-                        onBlur={() => setFocusedIndex(null)}
-                      />
-                      <input
-                        maxLength={30}
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        placeholder="Location"
-                        type="text"
-                        style={mergedInputStyle(focusedIndex === 2)}
-                        onFocus={() => setFocusedIndex(2)}
-                        onBlur={() => setFocusedIndex(null)}
-                      />
-                      <input
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                        placeholder="Date"
-                        type="date"
-                        style={mergedInputStyle(focusedIndex === 3)}
-                        onFocus={() => setFocusedIndex(3)}
-                        onBlur={() => setFocusedIndex(null)}
-                      />
-                      <input
-                        maxLength={30}
-                        value={source}
-                        onChange={(e) => setSource(e.target.value)}
-                        placeholder="Source"
-                        type="text"
-                        style={mergedInputStyle(focusedIndex === 4)}
-                        onFocus={() => setFocusedIndex(4)}
-                        onBlur={() => setFocusedIndex(null)}
-                      />
-                      <input
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                        placeholder="URL"
-                        type="text"
-                        style={mergedInputStyle(focusedIndex === 5)}
-                        onFocus={() => setFocusedIndex(5)}
-                        onBlur={() => setFocusedIndex(null)}
-                      />
-                      <>
-                        <button
-                          type="submit"
-                          style={{ ...buttonStyle, ...(hovered ? buttonHoverStyle : {}) }}
-                            onMouseEnter={() => setHovered(true)}
-                            onMouseLeave={() => setHovered(false)}
-                        >
-                          {editingIndex !== null ? 'Confirm' : 'Add Job'}
-                        </button>
-                        {editingIndex !== null && (
-                          <button
-                          type="button"
-                          onClick={() => {
-                            setJobToDelete(jobs[editingIndex]);
-                            setShowDeleteModal(true);          
-                          }}
-                          style={{
-                            ...buttonStyle,
-                            backgroundColor: hoveredDelete ? '#c21a1aff' : '#660000',
-                            border: '3px solid rgba(124, 53, 53, 1)',
-                          }}
-                          onMouseEnter={() => setHoveredDelete(true)}
-                          onMouseLeave={() => setHoveredDelete(false)}
-                          >
-                          Delete
-                          </button>
-                        )}
-                      </>
-                    </form>
+                  )}                 
+                  <InputForm
+                    company={company}
+                    setCompany={setCompany}
+                    title={title}
+                    setTitle={setTitle}
+                    location={location}
+                    setLocation={setLocation}
+                    date={date}
+                    setDate={setDate}
+                    source={source}
+                    setSource={setSource}
+                    url={url}
+                    setUrl={setUrl}
+                    isEditing={editingIndex !== null}
+                    editingIndex={editingIndex}
+                    handleSubmit={handleSubmit}
+                    focusedIndex={focusedIndex}
+                    setFocusedIndex={setFocusedIndex}
+                    hovered={hovered}
+                    setHovered={setHovered}
+                    hoveredDelete={hoveredDelete}
+                    setHoveredDelete={setHoveredDelete}
+                    jobs={jobs}
+                    setJobToDelete={setJobToDelete}
+                    setShowDeleteModal={setShowDeleteModal}
+                  />
                   </div>
                 </div>
               </div>

@@ -1,5 +1,4 @@
-import { gridTemplateStyle, outerBorderColor, rowStyle, sortConfig, } from "./styles";
-
+import { gridTemplateStyle, outerBorderColor, rowStyle } from '../styles/styles';
 
 
 

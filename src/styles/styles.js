@@ -26,6 +26,11 @@ export const inputStyle = {
   outline: 'none',
 };
 
+export const mergedInputStyle = (isFocused) => ({
+  ...inputStyle,
+  ...(isFocused ? inputFocusStyle : {}),
+});
+
 export const inputFocusStyle = {
   border: '1px solid rgb(199, 0, 0)',                     //input hover
 };
@@ -47,7 +52,7 @@ export const outerBorderStyle = {
   borderLeft: `5px solid ${outerBorderColor}`,
   borderRight: `5px solid ${outerBorderColor}`,
   borderRadius: '4x',
-  boxShadow: '0 0 100px rgba(97, 97, 97, 0.9)',
+  boxShadow: '0 0 30px rgba(97, 97, 97, 0.9)',
   backgroundColor: innerBorderColor
 };
 
@@ -78,3 +83,5 @@ export const rowStyle = (index, isHeader = false, i = null, hoveredRow) => ({
   textAlign: ( [0, 6, 7, 8].includes(i) || isHeader) ? 'center' : 'left',
   borderBottom: isHeader ? `0px solid ${innerBorderColor}` : null
 });
+
+export   const gridMinWidth = '1500px';
