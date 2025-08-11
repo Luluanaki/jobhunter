@@ -26,14 +26,16 @@ export const inputStyle = {
   outline: 'none',
 };
 
-export const mergedInputStyle = (isFocused) => ({
+export const inputFocusStyle = {
+  border: '1px solid rgb(199, 0, 0)',                     //input hover
+};
+
+export const mergedInputStyle = (isFocused = false) => ({
   ...inputStyle,
   ...(isFocused ? inputFocusStyle : {}),
 });
 
-export const inputFocusStyle = {
-  border: '1px solid rgb(199, 0, 0)',                     //input hover
-};
+
 
 export const editBoxStyle = {                                      //Colors for edit area
   padding: '20px',

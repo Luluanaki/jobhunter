@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Job = require('../models/Job');
+const User = require('../models/User');
 
 // GET all jobs
 router.get('/', async (req, res) => {
@@ -15,8 +16,39 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).lean();
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.json({ _id: user._id.toString(), username: user.username });
+  } catch (err) {
+    console.error('Get user error:', err);
+    // invalid ObjectId or other error
+    return res.status(400).json({ error: 'Invalid user id' });
+  }
+});
 
 // POST /api/jobs
+router.post('/login', async (req, res) => {
+  try {
+    const { username } = req.body;
+    if (!username || typeof username !== 'string') {
+      return res.status(400).json({ error: 'username is required' });
+    }
+
+    let user = await User.findOne({ username });
+    if (!user) {
+      user = await User.create({ username });
+    }
+
+    res.json({ _id: user._id.toString(), username: user.username });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 router.post('/', async (req, res) => {
   const { company, title, location, date, source, url, status, userId } = req.body;
 
@@ -73,5 +105,6 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 module.exports = router;

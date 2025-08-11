@@ -1,4 +1,4 @@
-import { mergedInputStyle, buttonStyle, buttonHoverStyle } from '../styles/styles';
+import { mergedInputStyle, buttonStyle,  } from '../styles/styles';
 
 export default function InputForm({
   company,
@@ -25,6 +25,7 @@ export default function InputForm({
   jobs,
   setJobToDelete,
   setShowDeleteModal,
+  buttonHoverStyle
 }) {
 
   return (

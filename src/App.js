@@ -2,13 +2,15 @@ import './index.css';
 import { useRef, useState, useEffect } from 'react';
 import { HeaderRow } from './components/HeaderRow';
 import  InputForm  from './components/InputForm';
-import { gridTemplateStyle, editBoxStyle, buttonStyle, outerBorderStyle, columnConfig, rowStyle, gridMinWidth    } from './styles/styles';
+import { gridTemplateStyle, editBoxStyle, buttonStyle, outerBorderStyle, columnConfig, rowStyle, gridMinWidth, mergedInputStyle    } from './styles/styles';
+import { JobSorter } from './utils/sortJobs';
 
 function App() 
 {
   const [username, setUsername] = useState('');
-  const [userId, setUserId] = useState(localStorage.getItem('userId') || '');
+  const [userId, setUserId] = useState('');
   const [loginInput, setLoginInput] = useState('');
+  const [authReady, setAuthReady] = useState(false); 
   const [company, setCompany] = useState('');
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
@@ -16,37 +18,29 @@ function App()
   const [source, setSource] = useState('');
   const [url, setUrl] = useState('');
   const [jobs, setJobs] = useState([]);
-
   const flashTimeoutRef = useRef(null);
+  const [loginFocused, setLoginFocused] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(null);
   const [editingIndex, setEditingIndex] = useState(null);
   const [lastEditedId, setLastEditedId] = useState(null);
-
   const [hoveredRow, setHoveredRow] = useState(null);
   const buttonHoverStyle = {
     backgroundColor: '#c21a1aff',                           //button hover
   };
-
+  const [hoveredCancel, setHoveredCancel] = useState(false);
+  const [hoveredDeleteConfirm, setHoveredDeleteConfirm] = useState(false);
   const [hoveredDelete, setHoveredDelete] = useState(false);
-
   const [hovered, setHovered] = useState(false);
   const [hoveredEditIndex, setHoveredEditIndex] = useState(null);
-
-
   const editedRowRef = useRef(null);
   const [flashingId, setFlashingId] = useState(null);
-
- 
-
   const [sortConfig, setSortConfig] = useState({ key: '', direction: '' });
-  const sortedJobs = [...jobs];
-
-  
+  const sortedJobs = JobSorter(sortConfig, jobs || []);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
-
-
   const formRef = useRef(null);
+
+
 
   useEffect(() => {
     if (!userId) return;
@@ -63,6 +57,48 @@ function App()
   
     fetchJobs();
   }, [userId]);
+
+  useEffect(() => {
+  const storedUserId = localStorage.getItem('userId');
+  const isValidObjectId = (v) => /^[a-f\d]{24}$/i.test(v || '');
+
+  if (!isValidObjectId(storedUserId)) {
+    // invalid or missing -> show login
+    localStorage.removeItem('userId');
+    setUserId('');
+    setUsername('');
+    setAuthReady(true);
+    return;
+  }
+
+  setUserId(storedUserId);
+
+  let cancelled = false;
+  (async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/users/${storedUserId}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const user = await res.json();
+      if (!cancelled) {
+        setUsername(user.username || '');
+      }
+    } catch (e) {
+      console.error('Failed to fetch username:', e);
+      if (!cancelled) {
+        localStorage.removeItem('userId'); // stale id
+        setUserId('');
+        setUsername('');
+      }
+    } finally {
+      if (!cancelled) setAuthReady(true);
+    }
+  })();
+
+  return () => { cancelled = true; };
+}, []);
+
+
+
   
   useEffect(() => {
     const existingId = localStorage.getItem('deviceId');
@@ -72,61 +108,6 @@ function App()
     }
   }, []);
 
-
-
-  if (sortConfig.key && sortConfig.direction) {
-    sortedJobs.sort((a, b) => {
-      let valA = a[sortConfig.key];
-      let valB = b[sortConfig.key];
-
-      // Handle date
-      if (sortConfig.key === 'date') {
-        const dateA = new Date(valA);
-        const dateB = new Date(valB);
-        const isValidA = !isNaN(dateA);
-        const isValidB = !isNaN(dateB);
-      
-        // Prioritize valid dates
-        if (!isValidA && isValidB) return 1;
-        if (isValidA && !isValidB) return -1;
-        if (!isValidA && !isValidB) return 0;
-      
-        valA = dateA;
-        valB = dateB;
-      }
-
-      // Handle blank strings for specific fields
-      const blankSensitiveFields = ['company', 'title', 'location', 'source'];
-      if (blankSensitiveFields.includes(sortConfig.key)) {
-        const isBlankA = !valA || valA.trim() === '';
-        const isBlankB = !valB || valB.trim() === '';
-  
-        if (isBlankA && !isBlankB) return 1;
-        if (!isBlankA && isBlankB) return -1;
-        if (isBlankA && isBlankB) return 0;
-      }
-
-      // Handle status custom order
-      if (sortConfig.key === 'status') {
-        const statusOrder = { pending: 0, interview: 1, rejected: 2, accepted: 3 };
-        valA = statusOrder[valA] ?? 999;
-        valB = statusOrder[valB] ?? 999;
-      }
-
-      const lowerA = String(valA).toLowerCase();
-      const lowerB = String(valB).toLowerCase();
-      
-      if (lowerA < lowerB) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (lowerA > lowerB) return sortConfig.direction === 'asc' ? 1 : -1;
-      
-      // If equal ignoring case, compare originals to give uppercase priority
-      if (String(valA) < String(valB)) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (String(valA) > String(valB)) return sortConfig.direction === 'asc' ? 1 : -1;
-      
-      return 0;
-    })
-  }
-  
   useEffect(() => {
     if (lastEditedId && editedRowRef.current) {
       editedRowRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -147,7 +128,6 @@ function App()
     };
   }, []);
 
-
   useEffect(() => {
     if (editingIndex === null || !jobs[editingIndex]) return;
       const job = jobs[editingIndex];
@@ -163,6 +143,9 @@ function App()
       setSource(job.source);
       setUrl(job.url);                              
   }, [editingIndex, jobs]);
+
+
+
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -289,6 +272,7 @@ function App()
         setUrl('');
         setEditingIndex(null);
         setHoveredDelete(false);
+        setHoveredDeleteConfirm(false);
       } else {
         console.error('Failed to delete job from backend');
       }
@@ -298,6 +282,7 @@ function App()
   }
   
 
+  
   function getDynamicFontSize(length, maxChars) {
     if (length <= maxChars) return '16px';
     if (length <= maxChars * 1.15) return '14px';
@@ -309,56 +294,96 @@ function App()
   return (
     <div style={{ display: 'flex', justifyContent: 'center', minHeight: '100vh',  alignItems: 'flex-start', fontFamily: "'Inter', sans-serif", backgroundColor: '#080808ff', color: '#ffffffff'  }}>
       <div style={{ width: '100%', maxWidth: '1500px', overflow: 'visible' }}>
-
+        <div> 
+          {!userId ? (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '8px 12px',
+              marginTop: '10px',
+              marginBottom: '0px',
+            }}>
+              <input
+                type="text"
+                placeholder="Enter username"
+                value={loginInput}
+                onChange={(e) => setLoginInput(e.target.value)}
+                onFocus={() => setLoginFocused(true)}
+                onBlur={() => setLoginFocused(false)}
+                style={mergedInputStyle(loginFocused)}
+                
+              />
+              <button
+                onClick={async () => {
+                  try {
+                    const response = await fetch('http://localhost:5000/api/users/login', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ username: loginInput }),
+                    });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const data = await response.json();
+                    setUserId(data._id);
+                    setUsername(data.username);
+                    localStorage.setItem('userId', data._id);
+                  } catch (err) {
+                    console.error('Login failed:', err);
+                  }
+                }}
+                style={{
+                  ...buttonStyle
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#c21a1a'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgb(141, 0, 0)'}
+              >
+                Login
+              </button>
+            </div>
+          ) : (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '8px 12px',
+              borderRadius: '6px',
+              marginTop: '10px',
+              marginBottom: '8px',
+              fontSize: '14px',
+            }}>
+              Logged in as:<strong style={{ color: '#c33' }}>{username}</strong>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('userId');
+                  setUserId('');
+                  setUsername('');
+                }}
+                style={{
+                  fontSize: '12px',
+                  padding: '3px 6px',
+                  backgroundColor: 'rgb(141, 0, 0)',
+                  color: '#fff',
+                  border: '3px solid #9b3232ff',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#c21a1a'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#900'}
+              >
+                Logout
+              </button>
+            </div>
+          )}
+            
+        </div> 
         <div style={{ position: 'sticky', left: 0, zIndex: 1000 }}>
             <div style={{ width: gridMinWidth, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr', justifyContent: 'center'}}> 
               <div ref={formRef}>               
-                <h1 style={{ textAlign: 'center', textShadow: '0px 0px 20px #ffffff', }}>Lucas Castelein's Job Hunter</h1> 
+                <h1 style={{ textAlign: 'center', fontSize: '40px', textShadow: '0px 0px 20px #ffffff', marginBottom: '20px', marginTop: '0px' }}>Lucas Castelein's Job Hunter</h1> 
 
-              <div style={{  gridColumn: '1 / -1' }}>
-                <div style={ editingIndex !== null ? editBoxStyle : {}}>
-
-                  {!userId ? (
-                    <div style={{ textAlign: 'center', margin: '20px 0' }}>
-                      <input
-                        type="text"
-                        placeholder="Enter username"
-                        value={loginInput}
-                        onChange={(e) => setLoginInput(e.target.value)}
-                        style={{ padding: '8px', fontSize: '16px' }}
-                      />
-                      <button
-                        onClick={async () => {
-                          try {
-                            const response = await fetch('http://localhost:5000/api/users/login', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ username: loginInput }),
-                            });
-
-                            const data = await response.json();
-                            setUsername(loginInput);
-                            setUserId(data._id);
-                            localStorage.setItem('userId', data._id);
-                          } catch (err) {
-                            console.error('Login failed:', err);
-                          }
-                        }}
-                        style={{ marginLeft: '10px', padding: '8px 16px' }}
-                      >
-                        Login
-                      </button>
-                    </div>
-                  ) : (
-                    <div style={{ textAlign: 'center', margin: '20px 0', fontSize: '16px' }}>
-                      Logged in as <strong>{username}</strong>{' '}
-                      <button onClick={() => {
-                        localStorage.removeItem('userId');
-                        setUserId('');
-                        setUsername('');
-                      }} style={{ marginLeft: '10px' }}>Logout</button>
-                    </div>
-                  )}                 
+              <div style={{  gridColumn: '1 / -1' }}>              
+                <div style={ editingIndex !== null ? editBoxStyle : {}}>               
                   <InputForm
                     company={company}
                     setCompany={setCompany}
@@ -384,11 +409,12 @@ function App()
                     jobs={jobs}
                     setJobToDelete={setJobToDelete}
                     setShowDeleteModal={setShowDeleteModal}
+                    buttonHoverStyle={buttonHoverStyle}
                   />
-                  </div>
                 </div>
               </div>
             </div>
+          </div>
         </div>
 
         <div style={{ marginTop: '40px'}}>
@@ -516,7 +542,7 @@ function App()
               backgroundColor: '#1e1e1e',
               padding: '30px',
               borderRadius: '8px',
-              boxShadow: '0 0 20px rgba(0,0,0,0.5)',
+              boxShadow: '0 0 15px rgba(199, 199, 199, 0.5)',
               color: '#fff',
               minWidth: '300px',
               textAlign: 'center'
@@ -530,19 +556,23 @@ function App()
                   }}
                   style={{
                     ...buttonStyle,
-                    backgroundColor: '#900',
+                    backgroundColor: hoveredDeleteConfirm ? '#c21a1aff' : '#660000',
                     border: '3px solid rgba(124, 53, 53, 1)',
                   }}
+                  onMouseEnter={() => setHoveredDeleteConfirm(true)}
+                  onMouseLeave={() => setHoveredDeleteConfirm(false)}
                 >
                   Yes, Delete
                 </button>
                 <button
-                  onClick={() => setShowDeleteModal(false)}
+                  onClick={() => { setShowDeleteModal(false); setHoveredCancel(false); }}
                   style={{
                     ...buttonStyle,
-                    backgroundColor: '#333',
+                    backgroundColor: hoveredCancel ? '#a3a3a3ff' : '#333',
                     border: '3px solid #555',
                   }}
+                  onMouseEnter={() => setHoveredCancel(true)}
+                  onMouseLeave={() => setHoveredCancel(false)}
                 >
                   Cancel
                 </button>
