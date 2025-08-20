@@ -645,7 +645,7 @@ function App()
         <div style={{ position: 'sticky', left: 0, zIndex: 1000 }}>
             <div style={{ width: gridMinWidth, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr', justifyContent: 'center'}}> 
               <div ref={formRef}>               
-              <h1 style={{ textAlign: 'center',fontSize: '40px', textShadow: '0px 0px 20px #ffffff', marginBottom: '25px', marginTop: '20px', visibility: isAuthed ? 'visible' : 'hidden'}}><strong>{username}'s Job List</strong></h1> 
+              <h1 style={{ textAlign: 'center',fontSize: '40px', textShadow: '0px 0px 20px #ffffff', marginBottom: '25px', marginTop: '20px', visibility: 'visible', opacity:( !isAuthed ? 0.3  : {} )}}><strong> {isAuthed ? `${username}'s Job List` : 'My Job List'}</strong></h1> 
 
               <div style={{  gridColumn: '1 / -1' }}>              
                 <div style={ editingIndex !== null ? editBoxStyle : {}}>               
