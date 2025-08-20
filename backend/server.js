@@ -10,20 +10,22 @@ const app = express();
  * Env
  */
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/jobtracker';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const MONGO_URI =
+  process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/jobtracker';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 /**
  * CORS
- * - Allows your local frontend and your deployed Vercel URL.
- * - If you use Vercel preview URLs, we also allow *.vercel.app by pattern.
- * - We’re not using cookies, so `credentials` remains false.
+ * - Allow local dev and your deployed Vercel domain.
+ * - Also allow any Vercel preview URL (*.vercel.app).
+ * - We’re not using cookies, so `credentials` stays false.
+ *
+ * If you know your exact prod domain, add it to the set below.
  */
 const allowedOrigins = new Set([
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  FRONTEND_URL,
+  'https://myjoblist.vercel.app', // your Vercel production URL
 ]);
 
 const corsOptions = {
@@ -31,18 +33,19 @@ const corsOptions = {
     // allow non-browser tools (like curl / health checks without Origin)
     if (!origin) return callback(null, true);
 
-    // allow exact matches
+    // exact allowlist
     if (allowedOrigins.has(origin)) return callback(null, true);
 
-    // allow *.vercel.app (preview/prod)
+    // allow any *.vercel.app (preview deployments)
     if (/\.vercel\.app$/.test(origin)) return callback(null, true);
 
     // otherwise block
     return callback(new Error(`CORS blocked for origin: ${origin}`));
   },
-  credentials: false,
+  credentials: false, // set to true only if you move to cookies
 };
 
+// Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
 
@@ -52,10 +55,10 @@ app.use(express.json());
 const jobRoutes = require('./routes/jobRoutes');
 app.use('/api/jobs', jobRoutes);
 
-const userRoutes = require('./routes/userRoutes'); // must export /login, /register, /:id, etc.
+const userRoutes = require('./routes/userRoutes'); // exports /login, /register, /:id
 app.use('/api/users', userRoutes);
 
-// Simple healthcheck for Render
+// Healthcheck
 app.get('/health', (_req, res) => res.json({ ok: true, env: NODE_ENV }));
 
 /**
@@ -70,7 +73,11 @@ mongoose
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       if (NODE_ENV !== 'production') {
-        console.log(`   CORS allowed for: ${[...allowedOrigins].filter(Boolean).join(', ')} (+ *.vercel.app)`);
+        console.log(
+          `   CORS allowlist: ${[...allowedOrigins]
+            .filter(Boolean)
+            .join(', ')} (+ *.vercel.app)`
+        );
       }
     });
   })
@@ -80,7 +87,7 @@ mongoose
   });
 
 /**
- * Optional: graceful shutdown (Render sends SIGTERM on redeploys)
+ * Graceful shutdown (Render/hosting sends SIGTERM on redeploys)
  */
 process.on('SIGTERM', () => {
   console.log('🛑 SIGTERM received, closing Mongo connection…');
