@@ -6,6 +6,15 @@ const cors = require('cors');
 
 const app = express();
 
+
+app.get('/', (_req, res) => {
+  res.status(200).send('Backend up');
+});
+
+app.get('/health', (_req, res) => {
+  res.status(200).json({ ok: true, env: process.env.NODE_ENV || 'unknown' });
+});
+
 /**
  * Env
  */
