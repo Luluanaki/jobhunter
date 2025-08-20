@@ -6,7 +6,7 @@ export const gridTemplateStyle = {
 };
 
 export const columnConfig = [
-  { maxWidth: '34px',  maxChars: 3 },       // #
+  { maxWidth: '34px',  maxChars: 7 },       // #
   { maxWidth: '265px', maxChars: 28 },      // Company
   { maxWidth: '265px', maxChars: 28 },      // Job Title
   { maxWidth: '169px', maxChars: 18 },      // Location
@@ -30,9 +30,19 @@ export const inputFocusStyle = {
   border: '1px solid rgb(199, 0, 0)',                     //input hover
 };
 
-export const mergedInputStyle = (isFocused = false) => ({
+export const disabledStyle = {
+  opacity: 0.3,
+  cursor: 'not-allowed',
+};
+
+export const buttonHoverStyle = {
+    backgroundColor: '#c21a1aff',                           //button hover
+  };
+
+export const mergedInputStyle = (isFocused = false, isDisabled) => ({
   ...inputStyle,
   ...(isFocused ? inputFocusStyle : {}),
+  ...(isDisabled ? disabledStyle : {}),
 });
 
 
@@ -46,17 +56,27 @@ export const editBoxStyle = {                                      //Colors for 
 };
 
 
-export const outerBorderColor = ' rgba(97, 97, 97, 1)';        //outside border
-export const innerBorderColor = ' #131313ff';                  //inside border
+export const outerBorderColor = 'rgba(97, 97, 97, 1)';        //outside border
+export const innerBorderColor = '#080808ff';                  //inside border
   
 export const outerBorderStyle = {
-  borderBottom: `5px solid ${outerBorderColor}`,
-  borderLeft: `5px solid ${outerBorderColor}`,
-  borderRight: `5px solid ${outerBorderColor}`,
-  borderRadius: '4x',
-  boxShadow: '0 0 30px rgba(97, 97, 97, 0.9)',
-  backgroundColor: innerBorderColor
+  borderRightWidth: 5,
+  borderRightStyle: 'solid',
+  borderRightColor: outerBorderColor,
+
+  borderLeftWidth: 5,
+  borderLeftStyle: 'solid',
+  borderLeftColor: outerBorderColor,
+
+  borderBottomWidth: 5,
+  borderBottomStyle: 'solid',
+  borderBottomColor: outerBorderColor,
+
+  borderTop: 'none',
+  borderRadius: 4,
+  boxShadow: '0 0 15px rgba(199, 199, 199, 0.5)',
 };
+
 
 export  const buttonStyle = {
   backgroundColor: 'rgb(141, 0, 0)',                      //button
@@ -65,6 +85,8 @@ export  const buttonStyle = {
   padding: '6px 12px',
   cursor: 'pointer',
   fontWeight: 'bold',
+  borderRadius: 6,
+  fontSize: '14px'
 };
 
 export const rowStyle = (index, isHeader = false, i = null, hoveredRow) => ({
