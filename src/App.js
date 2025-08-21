@@ -1,4 +1,5 @@
 import React from 'react';
+import API_URL from './config';
 import './index.css';
 import { useRef, useState, useEffect } from 'react';
 import { HeaderRow } from './components/HeaderRow';
@@ -8,6 +9,7 @@ import { JobSorter } from './utils/sortJobs';
 import { getTodayLocalISO } from './utils/dateUtils';
 import { motion } from 'framer-motion';
 import { makeContainerVariants, makeCellVariants } from './utils/animations';
+
 
 
 function App() 
@@ -108,37 +110,21 @@ function App()
     if (!userId) { setJobs([]); return; }
   
     let cancelled = false;
-  
     (async () => {
       try {
-        const res = await fetch(`/api/jobs?userId=${userId}`);
+        const res = await fetch(`${API_URL}/api/jobs?userId=${userId}`);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
-        if (!cancelled) setJobs(data); 
+        if (!cancelled) setJobs(data);
       } catch (err) {
         if (!cancelled) console.error('Error fetching jobs:', err);
       }
     })();
   
     return () => { cancelled = true; };
-  }, [userId]);
+  }, [userId, API_URL]);
   
 
-  useEffect(() => {
-    if (!userId) return;
-  
-    async function fetchJobs() {
-      try {
-        const response = await fetch(`/api/jobs?userId=${userId}`);
-        const data = await response.json();
-        setJobs(data);
-      } catch (err) {
-        console.error('Error fetching jobs:', err);
-      }
-    }
-  
-    fetchJobs();
-  }, [userId]);
 
 
   useEffect(() => {
@@ -159,7 +145,7 @@ function App()
   let cancelled = false;
   (async () => {
     try {
-      const res = await fetch(`/api/users/${storedUserId}`);
+      const res = await fetch(`${API_URL}/api/users/${storedUserId}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const user = await res.json();
       if (!cancelled) {
@@ -242,7 +228,7 @@ function App()
     try {
       setLoginLoading(true);
       setLoginError('');
-      const response = await fetch('/api/users/login', {
+      const response = await fetch(`${API_URL}/api/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -303,7 +289,7 @@ function App()
       setRegLoading(true);
       setRegError('');
   
-      const res = await fetch('/api/users/register', {
+      const res = await fetch(`${API_URL}/api/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: regUsername.trim(), password: regPassword }),
@@ -388,7 +374,7 @@ function App()
       const jobId = jobs[editingIndex]._id;
   
       try {
-        const response = await fetch(`/api/jobs/${jobId}`, {
+        const response = await fetch(`${API_URL}/api/jobs/${jobId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newJob),
@@ -430,7 +416,7 @@ function App()
   
     // ADD MODE
     try {
-      const response = await fetch('/api/jobs', {
+      const response = await fetch(`${API_URL}/api/jobs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newJob),
@@ -490,7 +476,7 @@ function App()
     const jobToDelete = jobs[editingIndex];
   
     try {
-      const response = await fetch(`/api/jobs/${jobToDelete._id}`, {
+      const response = await fetch(`${API_URL}/api/jobs/${jobToDelete._id}`, {
         method: 'DELETE',
       });
       
@@ -645,7 +631,7 @@ function App()
         <div style={{ position: 'sticky', left: 0, zIndex: 1000 }}>
             <div style={{ width: gridMinWidth, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr', justifyContent: 'center'}}> 
               <div ref={formRef}>               
-              <h1 style={{ textAlign: 'center',fontSize: '40px', textShadow: '0px 0px 20px #ffffff', marginBottom: '25px', marginTop: '20px', visibility: 'visible', opacity:( !isAuthed ? 0.3  : {} )}}><strong> {isAuthed ? `${username}'s Job List` : 'My Job List'}</strong></h1> 
+              <h1 style={{ textAlign: 'center',fontSize: '40px', textShadow: '0px 0px 20px #ffffff', marginBottom: '25px', marginTop: '20px', visibility: 'visible', opacity: isAuthed ? 1 : 0.3}}><strong> {isAuthed ? `${username}'s Job List` : 'My Job List'}</strong></h1> 
 
               <div style={{  gridColumn: '1 / -1' }}>              
                 <div style={ editingIndex !== null ? editBoxStyle : {}}>               
@@ -731,7 +717,7 @@ function App()
                           onChange={async (e) => {
                             const newStatus = e.target.value;
                             try {
-                              const response = await fetch(`/api/jobs/${job._id}`, {
+                              const response = await fetch(`${API_URL}/api/jobs/${job._id}`, {
                                 method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ status: newStatus }),

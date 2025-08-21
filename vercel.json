@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://myjoblist.onrender.com/api/$1"
-    }
-  ]
-}
