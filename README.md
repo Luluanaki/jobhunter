@@ -8,7 +8,22 @@
 ## Demo
 <p float="left">
   <img src="https://github.com/Luluanaki/jobhunter/blob/53088c26956e6ddafafd1321a81b7896ad8c2a0c/assets/React%20App%20Blank.png?raw=true"width="98%"/>
+</p>
+
+
+<p float="left"> 
   <img src="https://github.com/Luluanaki/jobhunter/blob/e78622353302b2f943a185ccd657e080515f1168/assets/Logging%20in.gif?raw=true"width="98%"/>
+</p>
+
+
+<p float="left">  
+  <img src="https://github.com/Luluanaki/jobhunter/blob/9c6c2ce29a4a0801245c902d9d3d9a322ca1fadb/assets/Add%20Job.gif?raw=true"width="98%"/>
+
+
+<p float="left"> 
+  <img src="https://github.com/Luluanaki/jobhunter/blob/9c6c2ce29a4a0801245c902d9d3d9a322ca1fadb/assets/Edit%20and%20Delete.gif?raw=true"width="98%"/>
+</p>
+  
 </p>
 
 ---
