@@ -6,13 +6,7 @@
 ---
 
 ## 🎥 Demo
-**Welcome Screen**
-<p float="left">
-  <img src="https://github.com/Luluanaki/jobhunter/blob/53088c26956e6ddafafd1321a81b7896ad8c2a0c/assets/React%20App%20Blank.png?raw=true"width="98%"/>
-</p>
-
-##
-**Logging in**
+**Logging In**
 <p float="left"> 
   <img src="https://github.com/Luluanaki/jobhunter/blob/e78622353302b2f943a185ccd657e080515f1168/assets/Logging%20in.gif?raw=true"width="98%"/>
 </p>
