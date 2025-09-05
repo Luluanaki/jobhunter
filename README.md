@@ -5,30 +5,40 @@
 
 ---
 
-## Demo
+## 🎥 Demo
+**Welcome Screen**
 <p float="left">
   <img src="https://github.com/Luluanaki/jobhunter/blob/53088c26956e6ddafafd1321a81b7896ad8c2a0c/assets/React%20App%20Blank.png?raw=true"width="98%"/>
 </p>
 
-
+##
+**Logging in**
 <p float="left"> 
   <img src="https://github.com/Luluanaki/jobhunter/blob/e78622353302b2f943a185ccd657e080515f1168/assets/Logging%20in.gif?raw=true"width="98%"/>
 </p>
 
-
+##
+**Add Job Function**
 <p float="left">  
   <img src="https://github.com/Luluanaki/jobhunter/blob/9c6c2ce29a4a0801245c902d9d3d9a322ca1fadb/assets/Add%20Job.gif?raw=true"width="98%"/>
+</p>  
 
-
+##
+**Edit and Delete Function**
 <p float="left"> 
   <img src="https://github.com/Luluanaki/jobhunter/blob/9c6c2ce29a4a0801245c902d9d3d9a322ca1fadb/assets/Edit%20and%20Delete.gif?raw=true"width="98%"/>
 </p>
-  
+
+##
+**Sort Function**
+<p float="left"> 
+  <img src="https://github.com/Luluanaki/jobhunter/blob/5745fe57fb5a37e109f7e314fb1f397191c737fd/assets/Sorting.gif?raw=true"width="98%"/>
 </p>
+
 
 ---
 
-## Features
+## ✨ Features
 
 - **User login with persistence** – simple login system using `userId`, stored in LocalStorage for session persistence  
 - **Job application management** – create, edit, and delete job applications tied to the logged-in user  
@@ -42,7 +52,7 @@
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 **Frontend**
 - React
